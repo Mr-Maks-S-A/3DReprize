@@ -1,0 +1,10 @@
+#directory
+/build/
+/.vscode/
+
+/out/
+/Out/
+
+#file type
+*.exe
+*.o

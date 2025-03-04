@@ -1,0 +1,19 @@
+#ifndef _CONFIG_GPP_
+#define _CONFIG_GPP_
+
+#define PLATFORM_ID ""
+
+#define PROGECT_LANG_CPP_STANDART (23)
+#define CXX_COMPILER_ID ""
+#define CXX_COMPILER_VERSION ()
+
+#define PROGECT_LANG_C_STANDART (17)
+#define C_COMPILER_ID ""
+#define C_COMPILER_VERSION ()
+
+#define PROGECT_VERSION_MAJOR (0)
+#define PROGECT_VERSION_MINOR (1)
+#define PROGECT_VERSION_PATCH (1)
+#define PROGECT_VERSION "0.1.1"
+
+#endif //_CONFIG_GPP_
