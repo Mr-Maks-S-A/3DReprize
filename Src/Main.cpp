@@ -1,6 +1,6 @@
+
 #define IMGUI_IMPL_OPENGL_LOADER_GLAD
 #include <glad/glad.h> // Needs to be initialized with gladLoadGL() inuser's code
-
 
 #define TINYOBJLOADER_IMPLEMENTATION // define this in only *one* .cc
 // Optional. define TINYOBJLOADER_USE_MAPBOX_EARCUT gives robust triangulation. Requires C++11
@@ -90,46 +90,47 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   //=============================Initializate_SDL===========================
   if (!SDL_Init(SDL_INIT_VIDEO)) return SDL_APP_FAILURE;
   
-  SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-  SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-  SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+ 
 
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-
-  // Request an OpenGL 4.6 context (should be core)
+// Request an OpenGL 4.6 context (should be core)
   const char *glsl_version = "#version 460";
+  // SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
   SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 6);
-
   // Create window with graphics context
   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
   SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
   SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
+
   AppState *as = (AppState *)SDL_calloc(1, sizeof(AppState));
   if (!as) {
     return SDL_APP_FAILURE;
   }
-
   *appstate = as;
 
+  
+
+
+
   SDL_WindowFlags window_flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE /* | SDL_WINDOW_HIDDEN*/;
-
-
   if (as->window =SDL_CreateWindow("3D_Project", 1600, 900, window_flags);
       as->window == nullptr)
     std::cout << "Error: SDL_CreateWindow(): \n" << SDL_GetError();
-
   SDL_SetWindowPosition(as->window, SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED);
-
   if (as->glcontext = SDL_GL_CreateContext(as->window);
       as->glcontext == nullptr)
     std::cout << "Error: SDL_GL_CreateContext(): \n" << SDL_GetError();
 
+
+
     // INITIALIZE GLAD:
   if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress))
     std::cout << "Failed to initialize GLAD";
+
+
 
   SDL_GL_MakeCurrent(as->window, as->glcontext);
   SDL_GL_SetSwapInterval(1); // Enable vsync
@@ -141,11 +142,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
               "Resources/Shaders/UCamera_Fragment.glsl");
 
 
+
 //======================================3D_model_Loading======================================
-
-
-
-
 
   // std::string inputfile = "Resources/Models/Base_Cube.obj";
   std::string inputfile = "Resources/Models/Base_Suzanne.obj";
@@ -209,7 +207,6 @@ for (size_t s = 0; s < shapes.size(); s++) {
       coube_vertices.push_back(vy);
       coube_vertices.push_back(vz);
 
-      std::cout<<"IDX :"<<idx.vertex_index<<"\n\tverts :"<<vx<<" "<<vy<<" "<<vz<<std::endl;
 
       // Check if `normal_index` is zero or positive. negative = no normal data
 
@@ -219,11 +216,11 @@ for (size_t s = 0; s < shapes.size(); s++) {
       // +-----------+-----------+-----------+-----------+      +-----------+
       // | x | y | z | x | y | z | x | y | z | x | y | z | .... | x | y | z |
       // +-----------+-----------+-----------+-----------+      +-----------+
-      if (idx.normal_index >= 0) {
-        tinyobj::real_t nx = attrib.normals[3*size_t(idx.normal_index)+0];
-        tinyobj::real_t ny = attrib.normals[3*size_t(idx.normal_index)+1];
-        tinyobj::real_t nz = attrib.normals[3*size_t(idx.normal_index)+2];
-      }
+      // if (idx.normal_index >= 0) {
+      //   tinyobj::real_t nx = attrib.normals[3*size_t(idx.normal_index)+0];
+      //   tinyobj::real_t ny = attrib.normals[3*size_t(idx.normal_index)+1];
+      //   tinyobj::real_t nz = attrib.normals[3*size_t(idx.normal_index)+2];
+      // }
 
       // Check if `texcoord_index` is zero or positive. negative = no texcoord data
       //     attrib_t::texcoords => 2 floats per vertex
@@ -232,10 +229,10 @@ for (size_t s = 0; s < shapes.size(); s++) {
       // +-----------+-----------+-----------+-----------+      +-----------+
       // |  u  |  v  |  u  |  v  |  u  |  v  |  u  |  v  | .... |  u  |  v  |
       // +-----------+-----------+-----------+-----------+      +-----------+
-      if (idx.texcoord_index >= 0) {
-        tinyobj::real_t tx = attrib.texcoords[2*size_t(idx.texcoord_index)+0];
-        tinyobj::real_t ty = attrib.texcoords[2*size_t(idx.texcoord_index)+1];
-      }
+      // if (idx.texcoord_index >= 0) {
+      //   tinyobj::real_t tx = attrib.texcoords[2*size_t(idx.texcoord_index)+0];
+      //   tinyobj::real_t ty = attrib.texcoords[2*size_t(idx.texcoord_index)+1];
+      // }
 
       // Optional: vertex colors
       //     attrib_t::colors => 3 floats per vertex(vertex color. optional)
@@ -251,7 +248,7 @@ for (size_t s = 0; s < shapes.size(); s++) {
     index_offset += fv;
 
     // per-face material
-    shapes[s].mesh.material_ids[f];
+    // shapes[s].mesh.material_ids[f];
   }
 }
 
@@ -283,10 +280,32 @@ glBindVertexArray(VAO);
     glEnableVertexAttribArray(0);  
 // 4. Отвязываем VAO (НЕ EBO)
 glBindVertexArray(0);
-
-
-
 //======================================3D_model_Loading======================================
+
+
+
+
+// //=======================================IMGUI=======================================
+/// Setup Dear ImGui context
+  IMGUI_CHECKVERSION();
+  ImGui::CreateContext();
+  ImGuiIO &io = ImGui::GetIO();
+  (void)io;
+  io.ConfigFlags |=
+      ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
+  io.ConfigFlags |=
+      ImGuiConfigFlags_NavEnableGamepad; // Enable Gamepad Controls
+
+  // Setup Dear ImGui style
+  ImGui::StyleColorsDark();
+  // ImGui::StyleColorsLight();
+
+  // Setup Platform/Renderer backends
+  ImGui_ImplSDL3_InitForOpenGL(as->window, as->glcontext);
+  ImGui_ImplOpenGL3_Init(glsl_version);
+//=======================================IMGUI=======================================
+
+
 
   return SDL_APP_CONTINUE;
 }
@@ -294,7 +313,7 @@ glBindVertexArray(0);
 SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
 
 if (appstate != nullptr) {
-
+   ImGui_ImplSDL3_ProcessEvent(event);
     switch (event->type) {
     case SDL_EVENT_QUIT:
       return SDL_APP_SUCCESS;
@@ -307,6 +326,7 @@ if (appstate != nullptr) {
 SDL_AppResult SDL_AppIterate(void *appstate) { 
   AppState *as = (AppState *)appstate;
 	 
+
    glm::mat4 projection;
 	  float time = SDL_GetTicks() / 1000.f;
     int screenWidth, screenHeight;
@@ -314,10 +334,6 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
     projection =  glm::perspective(45.0f, (float)screenWidth / (float)screenHeight, 0.1f, 100.0f);
 	  
     
-    // draw a color
-	  float red = (std::sin(time) + 1) / 2.0;
-	  float green = (std::sin(time / 2) + 1) / 2.0;
-	  float blue = (std::sin(time) * 2 + 1) / 2.0;
 
     glm::mat4 view;
     float radius = 10.0f;
@@ -347,6 +363,11 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
     glDepthFunc(GL_LESS);
     // Clear the screen
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    // draw a color
+	  float red = (std::sin(time) + 1) / 2.0;
+	  float green = (std::sin(time / 2) + 1) / 2.0;
+	  float blue = (std::sin(time) * 2 + 1) / 2.0;
     glClearColor(red, green, blue, 1.f);
 
     as->Base->use();
@@ -361,6 +382,30 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
     glBindVertexArray(0);
 
 
+
+//=======================================IMGUI=======================================
+    ImGuiIO &io = ImGui::GetIO();
+    (void)io;
+    // Start the Dear ImGui frame
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplSDL3_NewFrame();
+    ImGui::NewFrame();
+//=======================================IMGUI=======================================
+
+
+
+
+//=======================================IMGUI=======================================
+ImGui::Begin("Imgui window");
+ImGui::Text("Hello");
+ImGui::End();
+
+
+// Rendering
+  ImGui::Render();
+  ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+//=======================================IMGUI=======================================
+
   SDL_GL_SwapWindow(as->window);
   
   return SDL_APP_CONTINUE; 
@@ -368,6 +413,14 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
 
 void SDL_AppQuit(void *appstate, SDL_AppResult result) {
   AppState *as = (AppState *)appstate;
+
+    // Cleanup
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplSDL3_Shutdown();
+    ImGui::DestroyContext();
+
+
+
   if (as) {
     delete as->Base;
     SDL_GL_DestroyContext(as->glcontext);

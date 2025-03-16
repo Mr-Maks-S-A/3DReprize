@@ -41,8 +41,8 @@ target_link_libraries(External_Library INTERFACE SDL3::SDL3)
 # #=================================IMGUI===============================
 # #ref: https://github.com/ocornut/imgui.git
 
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/imgui")  
-target_link_libraries(External_Library INTERFACE imgui)
+# add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/imgui")  
+# target_link_libraries(External_Library INTERFACE imgui)
 # #=================================IMGUI===============================
 
 

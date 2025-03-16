@@ -3,8 +3,6 @@ layout(location = 0) in vec3 position; // Устанавливаем позиц�
 
 uniform mat4 pvm;
 
-out vec4 vertexColor;
-
 
 void main() {
   // Напрямую передаем vec3 в vec4
