@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.30 FATAL_ERROR)
 
-SET(PROJECT_NAME "MOProject")                              #Project name
+SET(PROJECT_NAME "3D_Project")                              #Project name
 
 
 #======================create_config_file_project===========================
@@ -37,9 +37,9 @@ SET(PROJECT_NAME "MOProject")                              #Project name
 
 #==============================Initializing_the project_and_linking_files================================
 add_executable(${PROJECT_NAME})                                      #Adding an executable project
-target_sources(${PROJECT_NAME} PRIVATE main.cpp ${HPP} ${CPP})  # Binding code resources to an executable project
+target_sources(${PROJECT_NAME} PRIVATE Main.cpp ${HPP} ${CPP})  # Binding code resources to an executable project
 #==============================Initializing_the project_and_linking_files================================
 
 #===========================================Target_Link=============================================
-target_link_libraries(${PROJECT_NAME} PRIVATE External_LIbrary)
+target_link_libraries(${PROJECT_NAME} PRIVATE External_Library)
 #===========================================Target_Link=============================================

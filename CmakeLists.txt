@@ -23,6 +23,6 @@ cmake_minimum_required(VERSION 3.30 FATAL_ERROR)
 
 
 #==========================================Adding_Directory=======================================
-    add_subdirectory("${CMAKE_SOURCE_DIR}/External LIbrary")                                            #External LIbrary directory
+    add_subdirectory("${CMAKE_SOURCE_DIR}/External Library")                                            #External LIbrary directory
     add_subdirectory("${CMAKE_SOURCE_DIR}/Src")                                                         #main directory
 #==========================================Adding_Directory=======================================#

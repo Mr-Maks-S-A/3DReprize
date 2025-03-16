@@ -1,11 +1,18 @@
-
 #define IMGUI_IMPL_OPENGL_LOADER_GLAD
 #include <glad/glad.h> // Needs to be initialized with gladLoadGL() inuser's code
 
-// #define GLM_FORCE_RADIANS 1
-// #include <glm/glm.hpp>
-// #include <glm/gtc/matrix_transform.hpp>
-// #include <glm/gtc/type_ptr.hpp>
+
+#define TINYOBJLOADER_IMPLEMENTATION // define this in only *one* .cc
+// Optional. define TINYOBJLOADER_USE_MAPBOX_EARCUT gives robust triangulation. Requires C++11
+//#define TINYOBJLOADER_USE_MAPBOX_EARCUT
+#include "tiny_obj_loader.h"
+
+
+
+#define GLM_FORCE_RADIANS 1
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #define SDL_MAIN_USE_CALLBACKS 1 /* use the callbacks instead of main() */
 #include <SDL3/SDL.h>
@@ -18,14 +25,33 @@
 #include <imgui_impl_sdl3.h>
 
 #include <iostream>
+#include <cmath>
+
+#include <3D/Shader.hpp>
+
+// #====================================_00_=======================================
+
+uint32_t VAO,VBO,EBO;
+
+std::vector<float> coube_vertices  = { -0.5f, -0.5f, 0.0f
+                                      ,0.5f, -0.5f, 0.0f
+                                      ,0.5f,  0.5f, 0.0f
+                                      ,-0.5f,  0.5f, 0.0f};
+std::vector<uint32_t> coube_indices = {0, 1, 2, 2, 3, 0};
 
 
+  // VAO vao;
+  // BO vertex_vbo(BUFFER_TYPE::VERTEX), index_vbo(BUFFER_TYPE::ELEMENT); // вершинный и индексный буферы
 
 
 typedef struct {
   SDL_Window *window;
   SDL_GLContext glcontext;
+
+  Shader *Base;
 } AppState;
+
+
 
 static const struct {
   const char *key;
@@ -35,10 +61,11 @@ static const struct {
                          {SDL_PROP_APP_METADATA_COPYRIGHT_STRING, "None"},
                          {SDL_PROP_APP_METADATA_TYPE_STRING, "game"}};
 
+// #====================================_00_=======================================
+
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
-  if (!SDL_SetAppMetadata("Example OpenGlgame", "1.0", "OpenGlgame")) {
-    return SDL_APP_FAILURE;
-  }
+  //=============================Initializate_Meta===========================
+  if (!SDL_SetAppMetadata("3D_Project", "1.0", "Game?")) return SDL_APP_FAILURE;
 
   for (int32_t i = 0; i < SDL_arraysize(extended_metadata); ++i) {
     if (!SDL_SetAppMetadataProperty(extended_metadata[i].key,
@@ -46,24 +73,16 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
       return SDL_APP_FAILURE;
     }
   }
+  //=============================Initializate_Meta===========================
 
-  if (!SDL_Init(SDL_INIT_VIDEO)) {
-    return SDL_APP_FAILURE;
-  }
-
-  AppState *as = (AppState *)SDL_calloc(1, sizeof(AppState));
-  if (!as) {
-    return SDL_APP_FAILURE;
-  }
-
-  *appstate = as;
-
+  //=============================Initializate_SDL===========================
+  if (!SDL_Init(SDL_INIT_VIDEO)) return SDL_APP_FAILURE;
+  
   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
   SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
   SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
-  // SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
-  // SDL_GL_CONTEXT_PROFILE_CORE);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
   // Request an OpenGL 4.6 context (should be core)
   const char *glsl_version = "#version 460";
@@ -76,155 +95,234 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
   SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
-  SDL_WindowFlags window_flags =
-      SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN;
+  AppState *as = (AppState *)SDL_calloc(1, sizeof(AppState));
+  if (!as) {
+    return SDL_APP_FAILURE;
+  }
 
-  if (as->window =
-          SDL_CreateWindow("SDL3/OpenGL Demo", 1600, 900, window_flags);
+  *appstate = as;
+
+  SDL_WindowFlags window_flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE /* | SDL_WINDOW_HIDDEN*/;
+
+
+  if (as->window =SDL_CreateWindow("3D_Project", 1600, 900, window_flags);
       as->window == nullptr)
     std::cout << "Error: SDL_CreateWindow(): \n" << SDL_GetError();
 
-  SDL_SetWindowPosition(as->window, SDL_WINDOWPOS_CENTERED,
-                        SDL_WINDOWPOS_CENTERED);
+  SDL_SetWindowPosition(as->window, SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED);
 
   if (as->glcontext = SDL_GL_CreateContext(as->window);
       as->glcontext == nullptr)
     std::cout << "Error: SDL_GL_CreateContext(): \n" << SDL_GetError();
 
-  // INITIALIZE GLAD:
+    // INITIALIZE GLAD:
   if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress))
     std::cout << "Failed to initialize GLAD";
 
   SDL_GL_MakeCurrent(as->window, as->glcontext);
   SDL_GL_SetSwapInterval(1); // Enable vsync
   SDL_ShowWindow(as->window);
+  //=============================Initializate_SDL===========================
 
-  // Setup Dear ImGui context
-  IMGUI_CHECKVERSION();
-  ImGui::CreateContext();
-  ImGuiIO &io = ImGui::GetIO();
-  (void)io;
-  io.ConfigFlags |=
-      ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
-  io.ConfigFlags |=
-      ImGuiConfigFlags_NavEnableGamepad; // Enable Gamepad Controls
+   
+   as->Base = new Shader("Resources/Shaders/Base_Vertex.glsl",
+              "Resources/Shaders/Base_Fragment.glsl");
 
-  // Setup Dear ImGui style
-  ImGui::StyleColorsDark();
-  // ImGui::StyleColorsLight();
 
-  // Setup Platform/Renderer backends
-  ImGui_ImplSDL3_InitForOpenGL(as->window, as->glcontext);
-  ImGui_ImplOpenGL3_Init(glsl_version);
+//======================================3D_model_Loading======================================
+
+
+
+
+
+  std::string inputfile = "Resources/Models/Base_Cube.obj";
+  tinyobj::ObjReaderConfig reader_config;
+  reader_config.mtl_search_path = "Resources/Models/"; // Path to material files
+
+  tinyobj::ObjReader reader;
+
+  if (!reader.ParseFromFile(inputfile, reader_config)) {
+  if (!reader.Error().empty()) {
+      std::cerr << "TinyObjReader: " << reader.Error();
+  }
+  exit(1);
+}
+
+if (!reader.Warning().empty()) {
+  std::cout << "TinyObjReader: " << reader.Warning();
+}
+
+
+auto& attrib = reader.GetAttrib();
+auto& shapes = reader.GetShapes();
+auto& materials = reader.GetMaterials();
+
+
+// Loop over shapes
+for (size_t s = 0; s < shapes.size(); s++) {
+  // Loop over faces(polygon)
+  size_t index_offset = 0;
+  for (size_t f = 0; f < shapes[s].mesh.num_face_vertices.size(); f++) {
+    size_t fv = size_t(shapes[s].mesh.num_face_vertices[f]);
+
+    // Loop over vertices in the face.
+    for (size_t v = 0; v < fv; v++) {
+      //     attrib_t::vertices => 3 floats per vertex
+
+      //      v[0]        v[1]        v[2]        v[3]               v[n-1]
+      // +-----------+-----------+-----------+-----------+      +-----------+
+      // | x | y | z | x | y | z | x | y | z | x | y | z | .... | x | y | z |
+      // +-----------+-----------+-----------+-----------+      +-----------+
+      tinyobj::index_t idx = shapes[s].mesh.indices[index_offset + v];
+      float vx = attrib.vertices[3*size_t(idx.vertex_index)+0];
+      float vy = attrib.vertices[3*size_t(idx.vertex_index)+1];
+      float vz = attrib.vertices[3*size_t(idx.vertex_index)+2];
+
+
+      // coube_indices.push_back(idx.vertex_index);
+      // coube_vertices.push_back(vx);
+      // coube_vertices.push_back(vy);
+      // coube_vertices.push_back(vz);
+
+      // Check if `normal_index` is zero or positive. negative = no normal data
+
+      //     attrib_t::normals => 3 floats per vertex
+
+      //      n[0]        n[1]        n[2]        n[3]               n[n-1]
+      // +-----------+-----------+-----------+-----------+      +-----------+
+      // | x | y | z | x | y | z | x | y | z | x | y | z | .... | x | y | z |
+      // +-----------+-----------+-----------+-----------+      +-----------+
+      if (idx.normal_index >= 0) {
+        tinyobj::real_t nx = attrib.normals[3*size_t(idx.normal_index)+0];
+        tinyobj::real_t ny = attrib.normals[3*size_t(idx.normal_index)+1];
+        tinyobj::real_t nz = attrib.normals[3*size_t(idx.normal_index)+2];
+      }
+
+      // Check if `texcoord_index` is zero or positive. negative = no texcoord data
+      //     attrib_t::texcoords => 2 floats per vertex
+
+      //     t[0]        t[1]        t[2]        t[3]               t[n-1]
+      // +-----------+-----------+-----------+-----------+      +-----------+
+      // |  u  |  v  |  u  |  v  |  u  |  v  |  u  |  v  | .... |  u  |  v  |
+      // +-----------+-----------+-----------+-----------+      +-----------+
+      if (idx.texcoord_index >= 0) {
+        tinyobj::real_t tx = attrib.texcoords[2*size_t(idx.texcoord_index)+0];
+        tinyobj::real_t ty = attrib.texcoords[2*size_t(idx.texcoord_index)+1];
+      }
+
+      // Optional: vertex colors
+      //     attrib_t::colors => 3 floats per vertex(vertex color. optional)
+
+      //      c[0]        c[1]        c[2]        c[3]               c[n-1]
+      // +-----------+-----------+-----------+-----------+      +-----------+
+      // | x | y | z | x | y | z | x | y | z | x | y | z | .... | x | y | z |
+      // +-----------+-----------+-----------+-----------+      +-----------+
+      // tinyobj::real_t red   = attrib.colors[3*size_t(idx.vertex_index)+0];
+      // tinyobj::real_t green = attrib.colors[3*size_t(idx.vertex_index)+1];
+      // tinyobj::real_t blue  = attrib.colors[3*size_t(idx.vertex_index)+2];
+    }
+    index_offset += fv;
+
+    // per-face material
+    shapes[s].mesh.material_ids[f];
+  }
+}
+
+
+
+
+
+glGenVertexArrays(1, &VAO);
+
+glGenBuffers(1, &VBO);
+glBindBuffer(GL_ARRAY_BUFFER, VBO); 
+
+glGenBuffers(1, &EBO);
+glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+
+
+
+
+// 1. Привязываем VAO
+glBindVertexArray(VAO);
+    // 2. Копируем наши вершины в буфер для OpenGL
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*coube_vertices.size(),&coube_vertices[0], GL_STATIC_DRAW);
+    // 3. Копируем наши индексы в в буфер для OpenGL
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t)*coube_indices.size(), &coube_indices[0], GL_STATIC_DRAW);
+    // 3. Устанавливаем указатели на вершинные атрибуты
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);  
+// 4. Отвязываем VAO (НЕ EBO)
+glBindVertexArray(0);
+
+
+
+//======================================3D_model_Loading======================================
 
   return SDL_APP_CONTINUE;
 }
 
 SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
-  if (appstate != nullptr) {
 
-    ImGui_ImplSDL3_ProcessEvent(event);
+if (appstate != nullptr) {
 
     switch (event->type) {
     case SDL_EVENT_QUIT:
       return SDL_APP_SUCCESS;
-      // case SDL_EVENT_KEY_DOWN:
-      //   return handle_key_event_(ctx, event->key.scancode);
     }
   }
+
   return SDL_APP_CONTINUE;
 }
 
-SDL_AppResult SDL_AppIterate(void *appstate) {
+SDL_AppResult SDL_AppIterate(void *appstate) { 
   AppState *as = (AppState *)appstate;
-  ImGuiIO &io = ImGui::GetIO();
-  (void)io;
+	 
+	  // draw a color
+	  float time = SDL_GetTicks() / 1000.f;
+	  float red = (std::sin(time) + 1) / 2.0;
+	  float green = (std::sin(time / 2) + 1) / 2.0;
+	  float blue = (std::sin(time) * 2 + 1) / 2.0;
 
-  bool show_demo_window = true;
-  bool show_another_window = false;
-  ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    // Enable depth test
+    glEnable(GL_DEPTH_TEST);
+    // Accept fragment if it closer to the camera than the former one
+    glDepthFunc(GL_LESS);
+    // Clear the screen
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClearColor(red, green, blue, 1.f);
 
-  // Start the Dear ImGui frame
-  ImGui_ImplOpenGL3_NewFrame();
-  ImGui_ImplSDL3_NewFrame();
-  ImGui::NewFrame();
+    as->Base->use();
 
-  // 1. Show the big demo window (Most of the sample code is in
-  // ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear
-  // ImGui!).
-  if (show_demo_window)
-    ImGui::ShowDemoWindow(&show_demo_window);
 
-  // 2. Show a simple window that we create ourselves. We use a Begin/End pair
-  // to create a named window.
-  {
-    static float f = 0.0f;
-    static int counter = 0;
+    glBindVertexArray(VAO);
+    glDrawElements(GL_TRIANGLES, coube_indices.size(), GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
 
-    ImGui::Begin("Hello, world!"); // Create a window called "Hello, world!"
-                                   // and append into it.
+    // // Подключаем VAO
+    // vao.use();
+    // glDrawElements(GL_TRIANGLES, 8, GL_UNSIGNED_INT, (void*)(0));
 
-    ImGui::Text("This is some useful text."); // Display some text (you can
-                                              // use a format strings too)
-    ImGui::Checkbox(
-        "Demo Window",
-        &show_demo_window); // Edit bools storing our window open/close state
-    ImGui::Checkbox("Another Window", &show_another_window);
+    // vao.disable();
 
-    ImGui::SliderFloat("float", &f, 0.0f,
-                       1.0f); // Edit 1 float using a slider from 0.0f to 1.0f
-    ImGui::ColorEdit3(
-        "clear color",
-        (float *)&clear_color); // Edit 3 floats representing a color
 
-    if (ImGui::Button("Button")) // Buttons return true when clicked (most
-                                 // widgets return true when edited/activated)
-      ++counter;
-    ImGui::SameLine();
-    ImGui::Text("counter = %d", counter);
 
-    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
-                1000.0f / io.Framerate, io.Framerate);
-    ImGui::End();
-  }
-
-  // 3. Show another simple window.
-  if (show_another_window) {
-    ImGui::Begin(
-        "Another Window",
-        &show_another_window); // Pass a pointer to our bool variable (the
-                               // window will have a closing button that will
-                               // clear the bool when clicked)
-    ImGui::Text("Hello from another window!");
-    if (ImGui::Button("Close Me"))
-      show_another_window = false;
-    ImGui::End();
-  }
-
-  // Rendering
-  ImGui::Render();
-  glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
-  glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w,
-               clear_color.z * clear_color.w, clear_color.w);
-  glClear(GL_COLOR_BUFFER_BIT);
-  ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
   SDL_GL_SwapWindow(as->window);
-
-  return SDL_APP_CONTINUE;
-}
+  
+  return SDL_APP_CONTINUE; 
+  }
 
 void SDL_AppQuit(void *appstate, SDL_AppResult result) {
-  if (appstate != NULL) {
-    AppState *as = (AppState *)appstate;
-
-    // Cleanup
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplSDL3_Shutdown();
-    ImGui::DestroyContext();
-
-    // SDL_DestroyRenderer(as->renderer);
+  AppState *as = (AppState *)appstate;
+  if (as) {
+    delete as->Base;
     SDL_GL_DestroyContext(as->glcontext);
     SDL_DestroyWindow(as->window);
     SDL_free(as);
   }
+  SDL_Quit();
+	SDL_Log("Application quit successfully!");
+ 
 }

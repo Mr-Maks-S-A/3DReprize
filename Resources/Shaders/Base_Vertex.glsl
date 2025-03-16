@@ -1,7 +1,6 @@
 #version 460 core
 layout(location = 0) in vec3 position; // Устанавливаем позицию атрибута в 0
 
-out vec4 vertexColor; // Передаем цвет во фрагментный шейдер
 
 void main() {
   // Напрямую передаем vec3 в vec4
