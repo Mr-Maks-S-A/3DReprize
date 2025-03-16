@@ -8,10 +8,9 @@
 #include <glm/glm.hpp>
 
 class Shader {
-private:
+public:
   uint32_t ID;
 
-public:
   Shader(std::string_view ShaderPath_Vertex,
          std::string_view ShaderPath_Fragment);
   ~Shader();

@@ -33,15 +33,27 @@
 
 uint32_t VAO,VBO,EBO;
 
-std::vector<float> coube_vertices  = { -0.5f, -0.5f, 0.0f
-                                      ,0.5f, -0.5f, 0.0f
-                                      ,0.5f,  0.5f, 0.0f
-                                      ,-0.5f,  0.5f, 0.0f};
-std::vector<uint32_t> coube_indices = {0, 1, 2, 2, 3, 0};
+std::vector<float> coube_vertices;
+// std::vector<uint32_t> coube_indices;
+
+// std::vector<float> coube_vertices  = { -0.5f, -0.5f, 0.0f
+//                                       ,0.5f, -0.5f, 0.0f
+//                                       ,0.5f,  0.5f, 0.0f
+//                                       ,-0.5f,  0.5f, 0.0f};
+// std::vector<uint32_t> coube_indices = {0, 1, 2, 2, 3, 0};
 
 
-  // VAO vao;
-  // BO vertex_vbo(BUFFER_TYPE::VERTEX), index_vbo(BUFFER_TYPE::ELEMENT); // вершинный и индексный буферы
+glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f); 
+struct Camera{
+  glm::vec3 m_Pos{0.0f, 0.0f, 3.0f}; // x,y,z
+  glm::vec3 m_Target {0.0f, 0.0f, 0.0f};// x,y,z
+  glm::vec3 m_Direction {glm::normalize(m_Pos - m_Target)};
+  glm::vec3 m_Right {glm::normalize(glm::cross(up, m_Direction))};
+  glm::vec3 m_Up {glm::cross(m_Direction, m_Right)};
+} camera;
+
+
+// glm::mat4 view {glm::lookAt(camera.m_Pos, camera.m_Target,up)};
 
 
 typedef struct {
@@ -125,8 +137,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   //=============================Initializate_SDL===========================
 
    
-   as->Base = new Shader("Resources/Shaders/Base_Vertex.glsl",
-              "Resources/Shaders/Base_Fragment.glsl");
+   as->Base = new Shader("Resources/Shaders/UCamera_Vertex.glsl",
+              "Resources/Shaders/UCamera_Fragment.glsl");
 
 
 //======================================3D_model_Loading======================================
@@ -135,7 +147,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
 
 
 
-  std::string inputfile = "Resources/Models/Base_Cube.obj";
+  // std::string inputfile = "Resources/Models/Base_Cube.obj";
+  std::string inputfile = "Resources/Models/Base_Suzanne.obj";
   tinyobj::ObjReaderConfig reader_config;
   reader_config.mtl_search_path = "Resources/Models/"; // Path to material files
 
@@ -158,8 +171,20 @@ auto& shapes = reader.GetShapes();
 auto& materials = reader.GetMaterials();
 
 
+
+
 // Loop over shapes
 for (size_t s = 0; s < shapes.size(); s++) {
+
+//   for (long i = 0, cer = 0; i < shapes[s].mesh.indices.size(); ++i)
+// {
+//     coube_indices.push_back(shapes[s].mesh.indices[i].vertex_index);
+//     std::cout<<shapes[s].mesh.indices[i].vertex_index /*<< ((cer%3) == 0) ? "\n":" "*/;
+    
+//     if(cer == 2) {std::cout<<std::endl; cer = 0;}
+//     else ++cer;
+// }
+// std::cout<<"IndicesColVo :" << coube_indices.size()<<std::endl;
   // Loop over faces(polygon)
   size_t index_offset = 0;
   for (size_t f = 0; f < shapes[s].mesh.num_face_vertices.size(); f++) {
@@ -174,15 +199,17 @@ for (size_t s = 0; s < shapes.size(); s++) {
       // | x | y | z | x | y | z | x | y | z | x | y | z | .... | x | y | z |
       // +-----------+-----------+-----------+-----------+      +-----------+
       tinyobj::index_t idx = shapes[s].mesh.indices[index_offset + v];
-      float vx = attrib.vertices[3*size_t(idx.vertex_index)+0];
-      float vy = attrib.vertices[3*size_t(idx.vertex_index)+1];
-      float vz = attrib.vertices[3*size_t(idx.vertex_index)+2];
+      tinyobj::real_t vx = attrib.vertices[3*size_t(idx.vertex_index)+0];
+      tinyobj::real_t vy = attrib.vertices[3*size_t(idx.vertex_index)+1];
+      tinyobj::real_t vz = attrib.vertices[3*size_t(idx.vertex_index)+2];
 
 
       // coube_indices.push_back(idx.vertex_index);
-      // coube_vertices.push_back(vx);
-      // coube_vertices.push_back(vy);
-      // coube_vertices.push_back(vz);
+      coube_vertices.push_back(vx);
+      coube_vertices.push_back(vy);
+      coube_vertices.push_back(vz);
+
+      std::cout<<"IDX :"<<idx.vertex_index<<"\n\tverts :"<<vx<<" "<<vy<<" "<<vz<<std::endl;
 
       // Check if `normal_index` is zero or positive. negative = no normal data
 
@@ -237,8 +264,8 @@ glGenVertexArrays(1, &VAO);
 glGenBuffers(1, &VBO);
 glBindBuffer(GL_ARRAY_BUFFER, VBO); 
 
-glGenBuffers(1, &EBO);
-glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+// glGenBuffers(1, &EBO);
+// glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 
 
 
@@ -248,9 +275,9 @@ glBindVertexArray(VAO);
     // 2. Копируем наши вершины в буфер для OpenGL
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(float)*coube_vertices.size(),&coube_vertices[0], GL_STATIC_DRAW);
-    // 3. Копируем наши индексы в в буфер для OpenGL
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t)*coube_indices.size(), &coube_indices[0], GL_STATIC_DRAW);
+    // // 3. Копируем наши индексы в в буфер для OpenGL
+    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    // glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t)*coube_indices.size(), &coube_indices[0], GL_STATIC_DRAW);
     // 3. Устанавливаем указатели на вершинные атрибуты
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);  
@@ -280,11 +307,39 @@ if (appstate != nullptr) {
 SDL_AppResult SDL_AppIterate(void *appstate) { 
   AppState *as = (AppState *)appstate;
 	 
-	  // draw a color
+   glm::mat4 projection;
 	  float time = SDL_GetTicks() / 1000.f;
+    int screenWidth, screenHeight;
+    SDL_GetWindowSize(as->window, &screenWidth, &screenHeight);
+    projection =  glm::perspective(45.0f, (float)screenWidth / (float)screenHeight, 0.1f, 100.0f);
+	  
+    
+    // draw a color
 	  float red = (std::sin(time) + 1) / 2.0;
 	  float green = (std::sin(time / 2) + 1) / 2.0;
 	  float blue = (std::sin(time) * 2 + 1) / 2.0;
+
+    glm::mat4 view;
+    float radius = 10.0f;
+    camera.m_Pos.x= sin(time) * radius;
+    camera.m_Pos.z= cos(time) * radius;
+    view = glm::lookAt(camera.m_Pos, camera.m_Target,up);
+
+    // glm::mat4 model;
+    // model = glm::translate(model, glm::vec3(0.5f, -0.5f, 0.0f));
+    // model = glm::scale(model, glm::vec3(0.5, 0.5, 0.5));  
+    // model = glm::rotate(model,time * 50.0f, glm::vec3(0.0f, 0.0f, 1.0f));
+
+
+    glm::mat4 pvm = projection*view/* *model */;
+
+    uint32_t h_pvm = glGetUniformLocation(as->Base->ID, "pvm");
+    glUniformMatrix4fv(h_pvm, 1, GL_FALSE, glm::value_ptr(pvm));
+
+
+
+
+
 
     // Enable depth test
     glEnable(GL_DEPTH_TEST);
@@ -297,16 +352,13 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
     as->Base->use();
 
 
+    // glBindVertexArray(VAO);
+    // glDrawElements(GL_TRIANGLES, coube_indices.size(), GL_UNSIGNED_INT, 0);
+    // glBindVertexArray(0);
+
     glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, coube_indices.size(), GL_UNSIGNED_INT, 0);
+    glDrawArrays(GL_TRIANGLES, 0, coube_vertices.size());
     glBindVertexArray(0);
-
-    // // Подключаем VAO
-    // vao.use();
-    // glDrawElements(GL_TRIANGLES, 8, GL_UNSIGNED_INT, (void*)(0));
-
-    // vao.disable();
-
 
 
   SDL_GL_SwapWindow(as->window);
