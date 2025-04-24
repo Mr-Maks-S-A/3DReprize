@@ -1,45 +1,29 @@
-cmake_minimum_required(VERSION 3.30 FATAL_ERROR)
+cmake_minimum_required(VERSION 4.0 FATAL_ERROR)
 
-SET(PROJECT_NAME "3D_Project")                              #Project name
-
-
-#======================create_config_file_project===========================
-    set(PROGECT_LANG_CPP_STANDART ${CMAKE_CXX_STANDARD})        
-    set(PROGECT_LANG_C_STANDART ${CMAKE_C_STANDARD})           
-    set(PROGECT_VERSION_MAJOR 0) 
-    set(PROGECT_VERSION_MINOR 1)
-    set(PROGECT_VERSION_PATCH 1)
-    set(PROGECT_VERSION "${PROGECT_VERSION_MAJOR}.${PROGECT_VERSION_MINOR}.${PROGECT_VERSION_PATCH}")
-#======================create_config_file_project===========================
+set(PROJECT_NAME "VVV")
 
 #===============================Search_files_by_directories===============================
-    SET(_hdir "${CMAKE_CURRENT_SOURCE_DIR}/include")            #root path to header directory
-    SET(_cdir "${CMAKE_CURRENT_SOURCE_DIR}/code")               #root path to the implementation resource files directory
+SET(_hdir "${CMAKE_CURRENT_SOURCE_DIR}/include")            #root path to header directory
+SET(_cdir "${CMAKE_CURRENT_SOURCE_DIR}/code")               #root path to the implementation resource files directory
 
-    file(GLOB_RECURSE HPP CONFIGURE_DEPENDS
-        ${_hdir}/*.h**                                          #All regular header files (.h .hpp .hxx)
-        ${_hdir}/*.inl                                          #All embedded or template header files  (.inl)
-    )
+file(GLOB_RECURSE HPP CONFIGURE_DEPENDS
+    ${_hdir}/*.h**                                          #All regular header files (.h .hpp .hxx)
+    ${_hdir}/*.inl                                          #All embedded or template header files  (.inl)
+)
 
-    file(GLOB_RECURSE CPP CONFIGURE_DEPENDS
-        ${_cdir}/*.c**                                          #All regular resource files (.c .cpp .cxx)
-    )
+file(GLOB_RECURSE CPP CONFIGURE_DEPENDS
+    ${_cdir}/*.c**                                          #All regular resource files (.c .cpp .cxx)
+)
 
-    configure_file( "${CMAKE_CURRENT_SOURCE_DIR}/config.hpp.in" 
-                    "${_hdir}/config.hpp"
-                     @ONLY)                                     #Create a configure_file.hpp
-
-    include_directories(${_hdir})                               #Including the Project Header Root Directory in a Project
+include_directories(${_hdir})                               #Including the Project Header Root Directory in a Project
 #===============================Search files by directories===============================
-
-
-
 
 #==============================Initializing_the project_and_linking_files================================
 add_executable(${PROJECT_NAME})                                      #Adding an executable project
-target_sources(${PROJECT_NAME} PRIVATE Main.cpp ${HPP} ${CPP})  # Binding code resources to an executable project
+target_sources(${PROJECT_NAME} PRIVATE main.cpp ${HPP} ${CPP})  # Binding code resources to an executable project
 #==============================Initializing_the project_and_linking_files================================
 
+
 #===========================================Target_Link=============================================
-target_link_libraries(${PROJECT_NAME} PRIVATE External_Library)
+target_link_libraries(${PROJECT_NAME} PRIVATE External)
 #===========================================Target_Link=============================================
