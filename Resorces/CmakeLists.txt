@@ -1,1 +1,7 @@
 cmake_minimum_required(VERSION 4.0 FATAL_ERROR)
+
+
+
+
+# include(${CMAKE_SOURCE_DIR}/Cmake/CompileShaders.cmake)     
+# Compile_Shaders(SERCH_DIRECTORY ${CMAKE_SOURCE_DIR}/Resorces/Shaders/glsl OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/Resorces/Shaders/spirv )

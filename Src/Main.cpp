@@ -1,15 +1,27 @@
+
+
+// #define GLM_ENABLE_EXPERIMENTAL
+// #include <glm/glm.hpp>
+// #include <glm/gtc/type_ptr.hpp>
+// #include <glm/gtx/transform.hpp>
+ 
 #include <iostream>
-#include <cstdint>
+#include <Application/Aplication.hpp>
 
 
-int32_t main (int32_t agrc , char** agrv) {
+ 
+int32_t main()
+{
+    try
+    {
+       Application::get_app().main_Loop();
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+    }
     
-    // try {
-    //     app.run();
-    // } catch (const std::exception& e) {
-    //     std::cerr << e.what() << std::endl;
-    //     return EXIT_FAILURE;
-    // }
-
+ 
     return EXIT_SUCCESS;
 }
+

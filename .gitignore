@@ -2,6 +2,9 @@
 *.env
 *.ENV
 
+#comp shaders 
+*.spv
+
 # python temp paths
 __pycache__/
 *.py[cod]

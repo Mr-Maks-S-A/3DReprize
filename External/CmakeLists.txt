@@ -2,8 +2,9 @@ cmake_minimum_required(VERSION 4.0 FATAL_ERROR)
 
 add_library(External INTERFACE)
 
-option(INCLUDE_VULKAN   "Включение VUIKAN в проект"     ON)
-option(INCLUDE_OPENGL   "Включение Opengl в проект"     OFF)
+option(INCLUDE_VULKAN   "Включение VUIKAN в проект"     OFF)
+option(INCLUDE_OPENGL   "Включение Opengl в проект"     ON)
+
 
 option(INCLUDE_GLFW     "Включение GLFW в проект"       ON)
 option(INCLUDE_GLM      "Включение GLM в проект"        ON)
@@ -20,6 +21,11 @@ endif()
 if(INCLUDE_OPENGL)
     find_package(OpenGL REQUIRED)
     target_link_libraries(External INTERFACE OpenGL::GL)
+
+    #===================================GLAD===================================
+    add_subdirectory("${CMAKE_SOURCE_DIR}/External/glad")  
+    target_link_libraries(External INTERFACE glad)
+
 endif()
 
 

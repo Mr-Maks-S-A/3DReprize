@@ -12,6 +12,17 @@ cmake_minimum_required(VERSION 4.0 FATAL_ERROR)
 
 #===============================================================Build_OPTIONS==================================================================
 
+
+#========================================== Options_LANG 
+    # version C++ lang standart
+    SET(CMAKE_CXX_STANDARD 23)      
+    SET(CMAKE_CXX_STANDARD_REQUIRED ON)
+    SET(CMAKE_CXX_EXTENSIONS NO)
+    # version C lang standart
+    SET(CMAKE_C_STANDARD 17)
+    SET(CMAKE_C_STANDARD_REQUIRED ON)
+    SET(CMAKE_C_EXTENSIONS NO)
+
 #=================================================Directory_Project
 #Options_Out_Path
 # SET(CMAKE_BINARY_DIR "${CMAKE_SOURCE_DIR}/out/build")                                                   # Build Files
@@ -22,9 +33,8 @@ SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/out/${CMAKE_BUILD_TYPE}/
 add_subdirectory("${CMAKE_SOURCE_DIR}/External")                                                        #Library
 add_subdirectory("${CMAKE_SOURCE_DIR}/Src")                                                             #main directory
 
+# add_subdirectory("${CMAKE_SOURCE_DIR}/Resorces")                                                             #main directory
 
-        include(${CMAKE_SOURCE_DIR}/Cmake/CompileShaders.cmake)     
-        Compile_Shaders(SERCH_DIRECTORY ${CMAKE_SOURCE_DIR}/Resorces/Shaders/glsl OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/Resorces/Shaders/spirv )
 
 
 #===============================================================Build_OPTIONS==================================================================
