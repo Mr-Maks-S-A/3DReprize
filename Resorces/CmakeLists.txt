@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 4.0 FATAL_ERROR)
 
-
+include(${CMAKE_SOURCE_DIR}/Cmake/CopyDirectiryMacro.cmake)     
+copy_directory(${CMAKE_CURRENT_SOURCE_DIR}/Shaders/glsl ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Resorces/Shaders/glsl)
 
 
 # include(${CMAKE_SOURCE_DIR}/Cmake/CompileShaders.cmake)     

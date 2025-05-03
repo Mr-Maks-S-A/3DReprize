@@ -6,6 +6,7 @@
 
 #include <Application/Window.hpp>
 #include <Application/Event.hpp>
+#include <Render/Shader/Shader.hpp>
 
 
 class Application{

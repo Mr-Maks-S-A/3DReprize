@@ -1,8 +1,23 @@
-#version 460  
-varying vec3 color;  
+#version 450
+
+
+in vec4 Color;
+
+out vec4 FragColor;
+
 void main(){  
-    gl_FragColor = vec4(color, 1.0);  
+    FragColor = Color;  
 }
+
+
+
+
+
+// #version 460  
+// varying vec3 color;  
+// void main(){  
+//     gl_FragColor = vec4(color, 1.0);  
+// }
 
 
 // #version 450
