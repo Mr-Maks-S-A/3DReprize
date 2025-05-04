@@ -1,8 +1,17 @@
 cmake_minimum_required(VERSION 4.0 FATAL_ERROR)
 
+
+#========================================Compile Shaders glsl to spirv
+# include(${CMAKE_SOURCE_DIR}/Cmake/CompileShaders.cmake)     
+# Compile_Shaders(SERCH_DIRECTORY ${CMAKE_SOURCE_DIR}/Resorces/Shaders/glsl OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/Resorces/Shaders/spirv )
+
+#========================================Shaders
 include(${CMAKE_SOURCE_DIR}/Cmake/CopyDirectiryMacro.cmake)     
 copy_directory(${CMAKE_CURRENT_SOURCE_DIR}/Shaders/glsl ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Resorces/Shaders/glsl)
 
 
-# include(${CMAKE_SOURCE_DIR}/Cmake/CompileShaders.cmake)     
-# Compile_Shaders(SERCH_DIRECTORY ${CMAKE_SOURCE_DIR}/Resorces/Shaders/glsl OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/Resorces/Shaders/spirv )
+#========================================Image
+include(${CMAKE_SOURCE_DIR}/Cmake/CopyDirectiryMacro.cmake)     
+copy_directory(${CMAKE_CURRENT_SOURCE_DIR}/Image ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Resorces/Image)
+
+

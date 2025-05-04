@@ -8,6 +8,7 @@ option(INCLUDE_OPENGL   "Включение Opengl в проект"     ON)
 
 option(INCLUDE_GLFW     "Включение GLFW в проект"       ON)
 option(INCLUDE_GLM      "Включение GLM в проект"        ON)
+option(INCLUDE_ZLIB     "Включение ZLIB в проект"       ON)
 
 
 #======================================Vulkan======================================
@@ -74,4 +75,37 @@ if(INCLUDE_GLM)
         add_subdirectory("${CMAKE_SOURCE_DIR}/External/glm")  
         target_link_libraries(External INTERFACE glm::glm)
     endif()
+endif()
+
+
+
+
+#======================================ZLIB======================================
+#ref: https://github.com/madler/zlib
+if(INCLUDE_ZLIB)
+
+    set(ZLIB_BUILD_TESTING    OFF   CACHE BOOL  "Enable Zlib Examples as tests"                                  FORCE)
+    set(ZLIB_BUILD_SHARED     OFF   CACHE BOOL  "Enable building zlib shared library"                            FORCE)
+    set(ZLIB_BUILD_STATIC     ON    CACHE BOOL  "Enable building zlib static library"                            FORCE)
+    set(ZLIB_BUILD_MINIZIP    OFF   CACHE BOOL  "Enable building libminizip contrib library"                     FORCE)
+    set(ZLIB_INSTALL          OFF   CACHE BOOL  "Enable installation of zlib"                                    FORCE)
+    set(ZLIB_PREFIX           OFF   CACHE BOOL  "prefix for all types and library functions, see zconf.h.in"     FORCE)
+
+
+    
+    #ref: https://github.com/madler/zlib/wiki
+
+
+
+    # Use EXCLUDE_FROM_ALL to prevent all targets from being added to the solution  
+    add_subdirectory("${CMAKE_SOURCE_DIR}/External/zlib" EXCLUDE_FROM_ALL)
+
+    target_link_libraries(External INTERFACE zlibstatic)    # Or "zlib" depending on whether or not you want the shared/static library
+    # target_link_libraries(External INTERFACE zlib)
+
+    #======================If you are using system libraries:======================
+
+    # find_package(ZLIB REQUIRED)
+    # target_link_libraries(External INTERFACE ZLIB::ZLIB)
+    
 endif()
