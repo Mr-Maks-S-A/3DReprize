@@ -9,6 +9,7 @@ option(INCLUDE_OPENGL   "Включение Opengl в проект"     ON)
 option(INCLUDE_GLFW     "Включение GLFW в проект"       ON)
 option(INCLUDE_GLM      "Включение GLM в проект"        ON)
 option(INCLUDE_ZLIB     "Включение ZLIB в проект"       ON)
+option(INCLUDE_STB      "Включение STB в проект"        ON)
 
 
 #======================================Vulkan======================================
@@ -108,4 +109,12 @@ if(INCLUDE_ZLIB)
     # find_package(ZLIB REQUIRED)
     # target_link_libraries(External INTERFACE ZLIB::ZLIB)
     
+endif()
+
+
+
+#=================================STB=================================
+if(INCLUDE_STB)
+    add_subdirectory("${CMAKE_SOURCE_DIR}/External/stb")  
+    target_link_libraries(External INTERFACE STB)
 endif()

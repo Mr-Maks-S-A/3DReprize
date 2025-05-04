@@ -1,5 +1,4 @@
 #include <Application/Aplication.hpp>
-#include <iostream>
 
 
 Application& Application::get_app(){
@@ -18,24 +17,46 @@ Application::Application(){
 void Application::main_Loop(){
     Shader SS ( "Resorces/Shaders/glsl/simple.vert"
                 ,"Resorces/Shaders/glsl/simple.frag");
+
+    Texture TT ("Resorces/Image/Test.png"); 
     
 
         std::vector<float> Vert = {
-            -0.5f, -0.5f, 0.0f,
-            0.5f, -0.5f, 0.0f,
-            0.0f,  0.5f, 0.0f
+            // positions          // colors           // texture coords
+            0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
+            0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
+           -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
+           -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left 
         };
 
-        uint32_t VAO,VBO;
+        std::vector<uint32_t>indices = {  // Помните, что мы начинаем с 0!
+            0, 1, 3,   // Первый треугольник
+            1, 2, 3    // Второй треугольник
+        };  
+
+        uint32_t VAO,VBO,EBO;
         glGenVertexArrays(1, &VAO);
         glGenBuffers(1,&VBO);
+        glGenBuffers(1, &EBO);
 
         glBindVertexArray(VAO);
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glBufferData(GL_ARRAY_BUFFER,Vert.size()*sizeof(float), Vert.data(), GL_STATIC_DRAW);
         
-        glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,3*sizeof(float),(void*)0);
-        glEnableVertexAttribArray(0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, Vert.size()*sizeof(uint32_t), indices.data(), GL_STATIC_DRAW); 
+            // positions
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+            glEnableVertexAttribArray(0);
+            
+            // colors 
+            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+            glEnableVertexAttribArray(1); 
+            
+            // texture coords
+            glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+            glEnableVertexAttribArray(2);
+
         glBindVertexArray(0);
 
 
@@ -81,8 +102,11 @@ void Application::main_Loop(){
             glClear(GL_COLOR_BUFFER_BIT);
 
             SS.use();
+            TT.bind();
+
             glBindVertexArray(VAO);
-            glDrawArrays(GL_TRIANGLES,0,3);
+            glDrawElements(GL_TRIANGLES, 6 , GL_UNSIGNED_INT, 0);
+            // glDrawArrays(GL_TRIANGLES,0,3);
             glBindVertexArray(0);
 
         Win.SwapBuffers();

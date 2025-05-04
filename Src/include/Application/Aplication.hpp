@@ -7,6 +7,7 @@
 #include <Application/Window.hpp>
 #include <Application/Event.hpp>
 #include <Render/Shader/Shader.hpp>
+#include <Render/Texture/Texture.hpp>
 
 
 class Application{
