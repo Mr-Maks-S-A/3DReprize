@@ -28,6 +28,9 @@ void Window::initialize(int32_t Width , int32_t Height, std::string Title){
         exit(EXIT_FAILURE);
     };
 
+    m_Width = Width;
+    m_Height = Height;
+
     glfwMakeContextCurrent(ptr_window);
 
 
@@ -53,10 +56,16 @@ void Window::SwapBuffers(){
 
 void Window::Viewport(int32_t Width , int32_t Height){
     glViewport(0,0,Width,Height);
+    m_Width = Width;
+    m_Height = Height;
 };
 
 
 Window::Window(){};
 Window::~Window(){
     terminate();
+};
+
+void Window::setCursorMod(uint32_t Flag){
+    glfwSetInputMode(ptr_window, GLFW_CURSOR,Flag);
 };

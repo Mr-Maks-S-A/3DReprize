@@ -6,10 +6,12 @@
 #define MOUSE_BUTTON_STEP 1024
 
 class GLFWwindow;
+class Window;
 
 
 class Event{
     public:
+    static Window window;
     static std::vector<bool> _keys;
     static std::vector<uint32_t> _frames;
     static uint32_t _current;
@@ -30,6 +32,7 @@ class Event{
     static bool mouse_pressed(int button);
     static bool mouse_justPressed(int button);
 
+    static void toogleCursor(Window &target_window);
 
 };
 

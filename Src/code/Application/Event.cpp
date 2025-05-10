@@ -27,6 +27,7 @@ void cursor_position_callback(GLFWwindow * ptr_window
         Event::_cursor_started =true;
     }
 
+
     Event::x = xpos; 
     Event::y = ypos;
 
@@ -69,7 +70,6 @@ void key_callback(GLFWwindow * ptr_window
 
 uint32_t Event::init(GLFWwindow* new_window){
     GLFWwindow* ptr_window = new_window;
-
 
     Event::_keys.resize (1032,false);
     Event::_frames.resize (1032, 0);
@@ -126,4 +126,11 @@ bool Event::justPressed(int keycode){
  bool Event::mouse_justPressed(int button){
    
     return Event::_keys[MOUSE_BUTTON_STEP+button] && Event::_frames[MOUSE_BUTTON_STEP+button] == _current; 
+ };
+
+
+ void Event::toogleCursor(Window& target_window){
+    _cursor_loked =! _cursor_loked ;
+    target_window.setCursorMod(_cursor_loked ? GLFW_CURSOR_DISABLED: GLFW_CURSOR_NORMAL);
+    
  };
