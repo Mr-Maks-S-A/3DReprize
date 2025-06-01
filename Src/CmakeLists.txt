@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 4.0 FATAL_ERROR)
 
-set(PROJECT_NAME "VVV")
+set(PROJECT_NAME "Reprize")
 
-#=======================================Search files by directories======================================
+#=======================================Search files by project directories======================================
 SET(_hdir "${CMAKE_CURRENT_SOURCE_DIR}/include")            #root path to header directory
 SET(_cdir "${CMAKE_CURRENT_SOURCE_DIR}/code")               #root path to the implementation resource files directory
 
@@ -16,15 +16,20 @@ file(GLOB_RECURSE CPP CONFIGURE_DEPENDS
 )
 
 include_directories(${_hdir})                               #Including the Project Header Root Directory in a Project
-#=======================================Search files by directories======================================
+
+
+
+
 
 
 #==============================Initializing_the project_and_linking_files================================
 add_executable(${PROJECT_NAME})                                                                         #Adding an executable project
 target_sources(${PROJECT_NAME} PRIVATE main.cpp ${HPP} ${CPP})                                          # Binding code resources to an executable project
-#==============================Initializing_the project_and_linking_files================================
 
 
-#==============================================Target_Link================================================
-target_link_libraries(${PROJECT_NAME} PRIVATE External)
-#==============================================Target_Link================================================
+
+
+
+
+#==============================================Target_Link_Library================================================
+target_link_libraries(${PROJECT_NAME} PRIVATE Dependencies)

@@ -1,41 +1,23 @@
 cmake_minimum_required(VERSION 4.0 FATAL_ERROR)
 
-# cmake_host_system_information(RESULT PRETTY_NAME QUERY OS_NAME)
-# message(STATUS "${PRETTY_NAME}")
-
-# cmake_host_system_information(RESULT DISTRO QUERY OS_NAME)
-
-# foreach(VAR IN LISTS DISTRO)
-#   message(STATUS "${VAR}=`${${VAR}}`")
-# endforeach()
 
 
-#===============================================================Build_OPTIONS==================================================================
-
-
-#========================================== Options_LANG 
-    # version C++ lang standart
-    SET(CMAKE_CXX_STANDARD 23)      
-    SET(CMAKE_CXX_STANDARD_REQUIRED ON)
-    SET(CMAKE_CXX_EXTENSIONS NO)
-    # version C lang standart
-    SET(CMAKE_C_STANDARD 17)
-    SET(CMAKE_C_STANDARD_REQUIRED ON)
-    SET(CMAKE_C_EXTENSIONS NO)
-
-#=================================================Directory_Project
-#Options_Out_Path
-# SET(CMAKE_BINARY_DIR "${CMAKE_SOURCE_DIR}/out/build")                                                   # Build Files
+#=================================================Options_Path
+# SET(CMAKE_BINARY_DIR "${CMAKE_SOURCE_DIR}/out/build")                                                 # Build Files
 SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/out/${CMAKE_BUILD_TYPE}")                       # .exe/.dll/.so
 SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/out/${CMAKE_BUILD_TYPE}/Archive_static-lib")    # .lib / .a   
 
-#Adding_Directory
-add_subdirectory("${CMAKE_SOURCE_DIR}/External")                                                        #Library
-add_subdirectory("${CMAKE_SOURCE_DIR}/Src")                                                             #main directory
-add_subdirectory("${CMAKE_SOURCE_DIR}/Resorces")                                                             #main directory
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake CACHE PATH "Project specific path. Set manually if it was not found.")
+set(DEPENDENCIES_PATH ${CMAKE_SOURCE_DIR}/Dependencies CACHE PATH "Project specific path. Set manually if it was not found.")
+# set(RESORCES_PATH ${CMAKE_SOURCE_DIR}/Resorces CACHE PATH "")
+
+
+#
 
 
 
-#===============================================================Build_OPTIONS==================================================================
-
+#=================================================Adding_Directory_Project
+add_subdirectory("${DEPENDENCIES_PATH}")                                                      #Library directory
+add_subdirectory("${CMAKE_SOURCE_DIR}/Src")                                                   #Main_Project directory
+# add_subdirectory("${RESORCES_PATH}")                                                        #Sorces directory (img,models,sounds,db)
 
