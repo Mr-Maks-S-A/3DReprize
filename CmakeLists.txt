@@ -7,7 +7,7 @@ cmake_minimum_required(VERSION 4.0 FATAL_ERROR)
 SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/out/${CMAKE_BUILD_TYPE}")                       # .exe/.dll/.so
 SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/out/${CMAKE_BUILD_TYPE}/Archive_static-lib")    # .lib / .a   
 
-set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake CACHE PATH "Project specific path. Set manually if it was not found.")
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/Cmake CACHE PATH "Project specific path. Set manually if it was not found.")
 set(DEPENDENCIES_PATH ${CMAKE_SOURCE_DIR}/Dependencies CACHE PATH "Project specific path. Set manually if it was not found.")
 # set(RESORCES_PATH ${CMAKE_SOURCE_DIR}/Resorces CACHE PATH "")
 

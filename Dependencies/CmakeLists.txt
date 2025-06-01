@@ -1,0 +1,70 @@
+cmake_minimum_required(VERSION 4.0 FATAL_ERROR)
+
+
+include(FetchContent)
+
+
+add_library(Dependencies INTERFACE)
+
+#=================================================Options
+option(DEPENDENCIES_BUILD_TEST          ""      NOT)
+option(DEPENDENCIES_BUILD_STATIC_LIBS   ""      TRUE)
+
+
+option(DEPENDENCIES_BUILD_ERROR         ""      NOT)
+
+
+
+option(INCLUDE_VULKAN                   ""      TRUE)
+option(INCLUDE_GLM                      ""      TRUE)
+
+
+
+
+
+
+
+
+
+
+#=================================================Including
+
+
+# #==========================Vulkan_API
+# #url: https://vulkan.lunarg.com/
+# if(INCLUDE_VULKAN AND (DEPENDENCIES_BUILD_ERROR STREQUAL NOT))
+#     find_package(Vulkan REQUIRED)
+#     if(VULKAN_FOUND)
+#             message(STATUS "VULKSAN_IS_FOUND")
+#             target_link_libraries(Dependencies INTERFACE Vulkan::Vulkan)
+#         else()
+#             message(STATUS "VULKSAN_IS_NOT_FOUND: INSTALLED VULKAN")
+#             set(DEPENDENCIES_BUILD_ERROR TRUE)
+#     endif(VULKAN_FOUND)
+# endif(INCLUDE_VULKAN AND (DEPENDENCIES_BUILD_ERROR STREQUAL NOT))
+
+
+
+#==========================GLM_MATH_LIBRARY
+#url: https://github.com/g-truc/glm.git
+
+if(INCLUDE_GLM)
+    find_package(GLM REQUIRED)
+    if(GLM_FOUND STREQUAL TRUE)
+        message(STATUS "GLM_IS_FOUND")
+        target_include_directories(Dependencies INTERFACE GLM_INCLUDE_PATH)
+        target_link_libraries(Dependencies INTERFACE GLM_LIBRARIES)
+    else()
+        message(STATUS "GLM_IS_NOT_FOUND")
+        FetchContent_Declare(
+          glm
+          GIT_REPOSITORY https://github.com/g-truc/glm.git
+          GIT_TAG 1.0.1
+        )
+        FetchContent_MakeAvailable(glm)
+        target_link_libraries(Dependencies INTERFACE glm::glm)
+    endif(GLM_FOUND STREQUAL TRUE)
+endif(INCLUDE_GLM)
+
+
+
