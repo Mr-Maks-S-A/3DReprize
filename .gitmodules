@@ -1,6 +1,5 @@
 [submodule "glm"]
 	path = Dependencies/glm
 	url = https://github.com/g-truc/glm.git
-	branch = master
-    tag = 1.0.1
+
 
