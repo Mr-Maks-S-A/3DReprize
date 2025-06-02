@@ -7,16 +7,19 @@ include(FetchContent)
 add_library(Dependencies INTERFACE)
 
 #=================================================Options
-option(DEPENDENCIES_BUILD_TEST          ""      NOT)
-option(DEPENDENCIES_BUILD_STATIC_LIBS   ""      TRUE)
+option(DEPENDENCIES_DOWLOAD_FETCH       ""      OF)
+
+option(DEPENDENCIES_BUILD_TEST          ""      OFF)
+option(DEPENDENCIES_BUILD_STATIC_LIBS   ""      ON)
 
 
-option(DEPENDENCIES_BUILD_ERROR         ""      NOT)
+
+option(DEPENDENCIES_BUILD_ERROR         ""      OFF)
 
 
 
-option(INCLUDE_VULKAN                   ""      TRUE)
-option(INCLUDE_GLM                      ""      TRUE)
+option(INCLUDE_VULKAN                   ""      ON)
+option(INCLUDE_GLM                      ""      ON)
 
 
 
@@ -32,38 +35,61 @@ option(INCLUDE_GLM                      ""      TRUE)
 
 # #==========================Vulkan_API
 # #url: https://vulkan.lunarg.com/
-# if(INCLUDE_VULKAN AND (DEPENDENCIES_BUILD_ERROR STREQUAL NOT))
-#     find_package(Vulkan REQUIRED)
-#     if(VULKAN_FOUND)
-#             message(STATUS "VULKSAN_IS_FOUND")
-#             target_link_libraries(Dependencies INTERFACE Vulkan::Vulkan)
-#         else()
-#             message(STATUS "VULKSAN_IS_NOT_FOUND: INSTALLED VULKAN")
-#             set(DEPENDENCIES_BUILD_ERROR TRUE)
-#     endif(VULKAN_FOUND)
-# endif(INCLUDE_VULKAN AND (DEPENDENCIES_BUILD_ERROR STREQUAL NOT))
+if(INCLUDE_VULKAN AND NOT DEPENDENCIES_BUILD_ERROR)
+    find_package(Vulkan REQUIRED)
+    if(VULKAN_FOUND)
+            message(STATUS "VULKSAN_IS_FOUND")
+            target_link_libraries(Dependencies INTERFACE Vulkan::Vulkan)
+        else()
+            message(STATUS "VULKSAN_IS_NOT_FOUND: INSTALLED VULKAN")
+            set(DEPENDENCIES_BUILD_ERROR ON)
+    endif(VULKAN_FOUND)
+endif(INCLUDE_VULKAN AND NOT DEPENDENCIES_BUILD_ERROR)
 
 
 
 #==========================GLM_MATH_LIBRARY
 #url: https://github.com/g-truc/glm.git
-
 if(INCLUDE_GLM)
     find_package(GLM REQUIRED)
-    if(GLM_FOUND STREQUAL TRUE)
-        message(STATUS "GLM_IS_FOUND")
-        target_include_directories(Dependencies INTERFACE GLM_INCLUDE_PATH)
-        target_link_libraries(Dependencies INTERFACE GLM_LIBRARIES)
+    if(GLM_FOUND)
+        target_include_directories(Dependencies INTERFACE ${GLM_INCLUDE_PATH})
+        target_link_libraries(Dependencies INTERFACE ${GLM_LIBRARIES})
     else()
-        message(STATUS "GLM_IS_NOT_FOUND")
+        set(GLM_BUILD_LIBRARY ${DEPENDENCIES_BUILD_STATIC_LIBS}      CACHE BOOL "Build dynamic/static library"   FORCE)
+        set(GLM_BUILD_TESTS   ${DEPENDENCIES_BUILD_TEST}     CACHE BOOL "Build the test programs"        FORCE)
+        set(GLM_BUILD_INSTALL       OFF     CACHE BOOL "Generate the install target"    FORCE)
+
+        set(GLM_ENABLE_CXX_98       OFF     CACHE BOOL "Enable C++ 98" FORCE)
+        set(GLM_ENABLE_CXX_11       OFF     CACHE BOOL "Enable C++ 11" FORCE)
+        set(GLM_ENABLE_CXX_14       OFF     CACHE BOOL "Enable C++ 14" FORCE)
+        set(GLM_ENABLE_CXX_17       OFF      CACHE BOOL "Enable C++ 17" FORCE)
+        set(GLM_ENABLE_CXX_20       ON     CACHE BOOL "Enable C++ 20" FORCE)
+
+        set(GLM_ENABLE_SIMD_SSE2    ON      CACHE BOOL "Enable SSE2 optimizations"      FORCE)
+        set(GLM_ENABLE_SIMD_SSE3    ON      CACHE BOOL "Enable SSE3 optimizations"      FORCE)
+        set(GLM_ENABLE_SIMD_SSSE3   ON      CACHE BOOL "Enable SSSE3 optimizations"     FORCE)
+        set(GLM_ENABLE_SIMD_SSE4_1  ON      CACHE BOOL "Enable SSE 4.1 optimizations"   FORCE)
+        set(GLM_ENABLE_SIMD_SSE4_2  ON      CACHE BOOL "Enable SSE 4.2 optimizations"   FORCE)
+        set(GLM_ENABLE_SIMD_AVX     ON      CACHE BOOL "Enable AVX optimizations"       FORCE)
+        set(GLM_ENABLE_SIMD_AVX2    ON      CACHE BOOL "Enable AVX2 optimizations"      FORCE)
+        set(GLM_ENABLE_SIMD_NEON    ON      CACHE BOOL "Enable ARM NEON optimizations"  FORCE)
+        set(GLM_FORCE_PURE          ON      CACHE BOOL "Force 'pure' instructions"      FORCE)
+
+        if(DEPENDENCIES_DOWLOAD_FETCH)
+        message(STATUS "FETCH_ON: DOWLOAD_GLM_LIB")
         FetchContent_Declare(
-          glm
-          GIT_REPOSITORY https://github.com/g-truc/glm.git
-          GIT_TAG 1.0.1
-        )
-        FetchContent_MakeAvailable(glm)
+            glm
+            GIT_REPOSITORY https://github.com/g-truc/glm.git
+            GIT_TAG 1.0.1
+            )
+            FetchContent_MakeAvailable(glm)
+        else()
+            message(STATUS "FETCH_OFF: ADDED - Dependencies/glm")
+            add_subdirectory("${CMAKE_SOURCE_DIR}/Dependencies/glm")  
+        endif(DEPENDENCIES_DOWLOAD_FETCH)
         target_link_libraries(Dependencies INTERFACE glm::glm)
-    endif(GLM_FOUND STREQUAL TRUE)
+    endif(GLM_FOUND )
 endif(INCLUDE_GLM)
 
 

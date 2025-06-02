@@ -5,15 +5,14 @@ cmake_minimum_required(VERSION 4.0 FATAL_ERROR)
 #=================================================Options_Path
 # SET(CMAKE_BINARY_DIR "${CMAKE_SOURCE_DIR}/out/build")                                                 # Build Files
 SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/out/${CMAKE_BUILD_TYPE}")                       # .exe/.dll/.so
-SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/out/${CMAKE_BUILD_TYPE}/Archive_static-lib")    # .lib / .a   
+SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/out/${CMAKE_BUILD_TYPE}/Archive_static-lib")                        # .lib / .a   
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/Cmake CACHE PATH "Project specific path. Set manually if it was not found.")
 set(DEPENDENCIES_PATH ${CMAKE_SOURCE_DIR}/Dependencies CACHE PATH "Project specific path. Set manually if it was not found.")
 # set(RESORCES_PATH ${CMAKE_SOURCE_DIR}/Resorces CACHE PATH "")
 
 
-#
-
+# message("CMAKE_INSTALL_INCLUDEDIR = ${CMAKE_INSTALL_INCLUDEDIR}")
 
 
 #=================================================Adding_Directory_Project
